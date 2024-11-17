@@ -6,11 +6,12 @@ execute:
   echo: true
 
 book:
-  title: "YOUR PROJECT TITLE"
+  title: "NYC Dogs"
   author:
-    - AUTHOR1 (UNI1)
-    - AUTHOR2 (UNI2)
-  repo-url: https://github.com/YOUR_GITHUB_ACCOUNT/REPO_NAME
+    - Jillian DeWoody (jd4127)
+    - Brigid Meisenbacher (bcm2167)
+    - Brittany Jiang (bj2518)
+    repo-url: https://github.com/jilldewoody/nycdogs
   date: today
   page-footer:
     right: |
