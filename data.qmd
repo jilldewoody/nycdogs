@@ -13,9 +13,17 @@ This dataset requires minimal cleansing. However, we may want to define broader 
 
 Link: https://data.census.gov/table?g=040XX00US36_050XX00US36005,36047&y=2023&d=ACS%201-Year%20Estimates%20Selected%20Population%20Profiles
 
-Description: As mentioned in our introduction, we are looking to consider macro social factors and how they may relate to dog ownership. To inform this, we will leverage the robust US Census Bureau Data, filtering by the counties we are interested in - Staten Island, Kings (Brooklyn), Queens, New York, Bronx. The Census Bureau collects data through variety of sources, including from respondents directly. It also uses existing data from government agencies and commercial entities. The data is released annually. Each column represents one of our selected counties. Each record represents a different demographic - for example "Median Household Income". Using the Census Bureau website, we can filter the data and then export to CSV.
+Description: As mentioned in our introduction, we are looking to consider macro social factors and how they may relate to dog ownership. To inform this, we will leverage the robust US Census Bureau Data, filtering by the counties we are interested in - Staten Island, Kings (Brooklyn), Queens, New York, Bronx. The Census Bureau collects data through variety of sources, including from respondents directly. It also uses existing data from government agencies and commercial entities. The data is released annually. Each column represents one of our selected counties and a demographic within the county (i.e. "Bronx Females). There are seperate columns for value estimates, percent estimates, and margin of error. Each record represents a different characteristic of that demographic - for example "Median Household Income". Using the Census Bureau website, we can filter the data and then export to CSV.
 
 The dataset also includes a margin of error. Since census data is collected through a sampling method, the dataset provides us with an uncertainty level around the final estimate. Where necessary, we will include this margin of error in our final visualizations. 
+
+3. Dog Bite Dataset
+
+Link: https://data.cityofnewyork.us/Health/DOHMH-Dog-Bite-Data/rsgh-akpg/about_data
+
+Description: One of the questions we posed in our introduction was whether dog bite rates have any effect on rates of dog ownership. To answer this question, we will use the Dog Bite Dataset from NYC Open Data. This data was collected by the Department of Health and Mental Hygiene. It is updated as needed and was last updated on February 21, 2024. The NYC Health Code requires all dog bites be reported within 24 hours. Data is received via website, mail, fax or by phone to 311. Each record represents a unique dog bite incident and contains information on dog breed, age, gender and spay/neuter status where available. We plan to import the data via the downloadable CSV on the NYC Open Data Website. 
+
+We did discover that this dataset contains a high number of missing values for some of the dog characteristics. We will make note to avoid using these specific characteristics in our analysis. 
 
 ## Missing value analysis
 
@@ -31,3 +39,25 @@ dogs$BreedName[dogs$BreedName == "Unknown"] <- NA
 plot_missing(dogs, title = "Dog License Data")
 
 ```
+Within the dog licensing data, we observed that around 9% of records are missing values for dog breed. This is within the acceptable range determined by the library and is understandable given that not all dog owners are confident in knowing the breed of their dog (for example, rescue dogs).
+
+
+```{r}
+
+dog_bite <- read_csv("data/DOHMH_Dog_Bite_Data_20241119.csv")
+
+dog_bite$Gender[dog_bite$Gender == "U"] <- NA
+
+plot_missing(dog_bite, title = "Dog Bite Data")
+
+```
+In the dog bite data, multiple columns contained missing data including breed, zip code, gender and age. Gender and age were not within the acceptable range of missing values, so we will avoid using these values in our analysis. 
+
+```{r fig.width=10, fig.height=20}
+
+census_median_income_data <- read_csv("data/ACSST1Y2023.S2001-2024-11-20T015529.csv")
+
+plot_missing(census_median_income_data, title = "NYC Borough Median Income Data")
+
+```
+The US Census Bureau Median Income Data we pulled is within the acceptable range of missing values. As mentioned, each column represents a county and a demographic within the county. There are separte columns for values, percentages and margins of error. 
