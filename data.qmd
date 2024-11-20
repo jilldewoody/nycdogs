@@ -1,5 +1,20 @@
 # Data
 
 ## Description
+1. NYC Dog Licensing Dataset via NYC Open Data
+
+Link: https://data.cityofnewyork.us/Health/NYC-Dog-Licensing-Dataset/nu7n-tubp/about_data
+
+Description: Our primary data source will be the NYC Dog Licensing Dataset from NYC Open Data. This data is provided by the Department of Mental Health and Hygiene.  The data is collected as part of the DOHMH Dog Licensing System, where all NYC dog owners are required to apply for dog licenses.  The data is updated annually and was last updated on February 6th, 2024. Each record represents a unique dog license that was active during the year and contains columns for the animal name, gender, birth year, and breed. We plan to import the data via the downloadable CSV on the NYC Open Data Website. 
+
+This dataset requires minimal cleansing. However, we may want to define broader categories for the breeds of licensed dogs. For example, we may choose to group these two, "American Pit Bull Terrier/Pit Bull" and "American Pit Bull Mix/ Pit Bull Mix" into one breed "American Pit Bull".
+
+2. US Census Bureau Data
+
+Link: https://data.census.gov/table?g=040XX00US36_050XX00US36005,36047&y=2023&d=ACS%201-Year%20Estimates%20Selected%20Population%20Profiles
+
+Description: As mentioned in our introduction, we are looking to consider macro social factors and how they may relate to dog ownership. To inform this, we will leverage the robust US Census Bureau Data, filtering by the counties we are interested in - Staten Island, Kings (Brooklyn), Queens, New York, Bronx. The Census Bureau collects data through variety of sources, including from respondents directly. It also uses existing data from government agencies and commercial entities. The data is released annually. Each column represents one of our selected counties. Each record represents a different demographic - for example "Median Household Income". Using the Census Bureau website, we can filter the data and then export to CSV.
+
+The dataset also includes a margin of error. Since census data is collected through a sampling method, the dataset provides us with an uncertainty level around the final estimate. Where necessary, we will include this margin of error in our final visualizations. 
 
 ## Missing value analysis
