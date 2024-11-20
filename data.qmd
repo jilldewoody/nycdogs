@@ -18,3 +18,16 @@ Description: As mentioned in our introduction, we are looking to consider macro 
 The dataset also includes a margin of error. Since census data is collected through a sampling method, the dataset provides us with an uncertainty level around the final estimate. Where necessary, we will include this margin of error in our final visualizations. 
 
 ## Missing value analysis
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(DataExplorer)
+
+dogs <- read_csv("data/NYC_Dog_Licensing_Dataset_20241119.csv")
+
+dogs$BreedName[dogs$BreedName == "Unknown"] <- NA
+
+plot_missing(dogs, title = "Dog License Data")
+
+```
