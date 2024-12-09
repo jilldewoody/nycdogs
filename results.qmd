@@ -1,1 +1,112 @@
 # Results
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(dplyr)
+library(sf)
+library(patchwork)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
+dog_license_data <- read_csv("data/NYC_Dog_Licensing_Dataset_20241119.csv")
+
+zip_code_sf <- st_read("data/geo_export_e35ad098-30ed-4f6e-9a13-eb60cbe27bb9.shp") |> 
+  rename(ZipCode = "modzcta")
+
+open_spaces_sf <- st_read("data/geo_export_b000feec-5389-4bd7-9bc5-b6452ffda1fc.shp")
+
+open_spaces_sf <- open_spaces_sf |> 
+  filter(landuse %in% c("Flagship Park", "Community Park", "Neighborhood Park", "Nature Area"))
+
+borough_boundaries_sf <- st_read("data/geo_export_6e2ea7cd-0290-475c-81cd-1cecb4e9ac52.shp")
+
+zip_code_to_borough <- read_csv("data/nyc-zip-codes.csv")
+```
+
+To begin our analysis, we explored dog ownership trends over time to draw conclusions on the growth of New York City's dog population in relation to cultural shifts and world events.  
+
+*TO-DO
+
+In this portion of our analysis, we explored New York City's dog population spatially to draw conclusions about the impact of geography on population characteristics.
+
+```{r, warning=FALSE}
+
+dog_license_count_by_zip <- dog_license_data |> 
+  group_by(ZipCode) |> 
+  summarize(count = n()) |> 
+  arrange(desc(count)) |> 
+  mutate(ZipCode = as.character(ZipCode))
+
+zip_sf_with_dog_count <- zip_code_sf |> 
+  left_join(dog_license_count_by_zip, by="ZipCode")
+
+ggplot() +
+  geom_sf(data = zip_sf_with_dog_count, aes(fill=count)) +
+  scale_fill_distiller(name = "Number of Dog Licenses", palette = "Blues", direction = 1) +
+  theme_void() +
+  theme(panel.grid = element_line(color="transparent")) + 
+  labs(title = "What NYC neighborhoods have high dog ownership?", caption = "Figure 1")
+```
+  From Figure 1, we observe that the zip codes with high counts of licensed dogs tend to be in or in close proximity to Manhattan. It's important to note that these neighborhoods also have the highest human populations. The highest density zip code appears on the Upper West Side of Manhattan, a largely residential neighborhood. Population remains high in most of midtown and lower Manhattan, but is lower in Upper Manhattan. This trend is similar in Brooklyn. Neighborhoods closest to lower and midtown Manhattan have a high count of licensed dogs while neighborhoods deeper into Brooklyn and in Queens tend to have lower counts. Neighborhoods in central Staten Island showed a high count of licensed dogs as well. This graph, and in particular our observation on the Upper West Side, provoked us to ask another question. In the next figure, we explore the impact of green spaces on licensed dog population. 
+
+```{r, warning=FALSE}
+
+manhattan_boundary <- borough_boundaries_sf |> 
+  filter(boro_name == "Manhattan")
+
+zip_sf_manhattan <- st_intersection(zip_sf_with_dog_count, manhattan_boundary)
+
+open_spaces_sf_manhattan <- st_intersection(st_make_valid(open_spaces_sf), manhattan_boundary)
+
+manhattan_plot <- ggplot() +
+  geom_sf(data = zip_sf_manhattan, aes(fill=count)) +
+  geom_sf(fill =  "#99ff66", data = open_spaces_sf_manhattan) +
+  scale_fill_distiller(name = "Number of Dog Licenses", palette = "Greys", direction = 1) +
+  theme_void() +
+  theme(panel.grid = element_line(color="transparent")) + 
+  labs(title = "Manhattan")
+
+brooklyn_boundary <- borough_boundaries_sf |> 
+  filter(boro_name == "Brooklyn")
+
+zip_sf_brooklyn <- st_intersection(zip_sf_with_dog_count, brooklyn_boundary)
+
+open_spaces_sf_brooklyn <- st_intersection(st_make_valid(open_spaces_sf), brooklyn_boundary)
+
+brooklyn_plot <- ggplot() +
+  geom_sf(data = zip_sf_brooklyn, aes(fill=count)) +
+  geom_sf(fill = "#99ff66", data = open_spaces_sf_brooklyn) +
+  scale_fill_distiller(name = "Number of Dog Licenses", palette = "Greys", direction = 1) +
+  theme_void() +
+  theme(panel.grid = element_line(color="transparent")) +
+  labs(title = "Brooklyn")
+
+(manhattan_plot | brooklyn_plot) +
+  plot_annotation(title = "Does proximity to green space affect dog ownership?", caption = "Figure 2")
+```
+  Figure 2 led us to conclude that proximity to green space is correlated to dog population. In Manhattan, zip codes surrounding Central Park displayed the highest licensed dog population. Particularly the Upper West Side which is surrounded both by Central Park to the East and Riverside Park to the West. There were some zip codes of Manhattan which did not fit the pattern. At the North tip of Manhattan is two large parks - Inwood Hill Park and Fort Tyron Park. However the zip codes surrounding these had relatively low numbers of licensed dogs. 
+  In Brooklyn, the trend is equally apparent. Zip codes surrounding Prospect Park, the second largest park in Brooklyn, had the highest licensed dog populations. Zip codes surrounding the largest park, Marine Park, had higher counts relative to surrounding neighborhoods in outer Brooklyn. There are also high count neighborhoods surrounding Dyker Beach Park in South Brooklyn and Fort Greene Park in North Brooklyn.
+  These observations proved our hypothesis to be true that proximity to a green space encourages dog ownership. This is a logical conclusion as being close to a green space allows ease of walking and socializing your pet. 
+  As we showed in the above two figures, geography has an impact on rates of dog ownership. We further wondered, does geography affect the most popular dog breeds? 
+  
+#TODO: Clean up Dog Breed Names (merge similar) & write analysis 
+
+```{r fig.width=10, fig.height=8, message=FALSE, warning=FALSE}
+
+dog_license_breed_count_by_borough <- dog_license_data |> 
+  left_join(zip_code_to_borough, by="ZipCode") |> 
+  filter(!is.na(Borough)) |> 
+  filter(BreedName != "Unknown") |> 
+  group_by(Borough, BreedName) |> 
+  summarize(count = n()) |> 
+  arrange(desc(count)) |> 
+  slice_head(n=5)
+
+ggplot(dog_license_breed_count_by_borough, aes(x = count, y = BreedName)) +
+  geom_col() +
+  facet_wrap(~Borough, scales="free") +
+  labs(title = "Most Popular Dog Breeds By Borough")
+
+```
+
