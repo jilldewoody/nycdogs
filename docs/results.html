@@ -203,6 +203,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 <p>To begin our analysis, we explored dog ownership trends over time to draw conclusions on the growth of New York City’s dog population in relation to cultural shifts and world events.</p>
 <p>*TO-DO</p>
 <p>In this portion of our analysis, we explored New York City’s dog population spatially to draw conclusions about the impact of geography on population characteristics.</p>
@@ -228,7 +246,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="results_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="results_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -273,7 +291,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="results_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="results_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -300,7 +318,195 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="results_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="960"></p>
+<p><img src="results_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># most popular dog breeds</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>counts_breed <span class="ot">&lt;-</span> dogs <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Year, BreedName) <span class="sc">|&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">proportion =</span> count<span class="sc">/</span> <span class="fu">sum</span>(count))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>counts_breed <span class="ot">&lt;-</span> counts_breed <span class="sc">%&gt;%</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(Year, proportion) </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort the data by borough and year (optional)</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>counts_breed <span class="ot">&lt;-</span> counts_breed <span class="sc">%&gt;%</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#  arrange(Year) |&gt; </span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">BreedName =</span> <span class="fu">ifelse</span>(proportion <span class="sc">&lt;</span> <span class="fl">0.02</span>, <span class="st">"Other"</span>, BreedName)) <span class="sc">%&gt;%</span>  <span class="co"># Reassign low counts to "Other"</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Year, BreedName) <span class="sc">%&gt;%</span>                                       <span class="co"># Group by the new breed categories</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">proportion =</span> <span class="fu">sum</span>(proportion, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>)  <span class="co"># Sum counts within each group</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>counts_breed_filtered <span class="ot">&lt;-</span> counts_breed <span class="sc">%&gt;%</span> <span class="fu">filter</span>(BreedName <span class="sc">!=</span> <span class="st">"Other"</span>)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">#ggplot(counts_breed_filtered, aes(x = factor(Year), y = fct_rev(reorder(BreedName, BreedName)), fill = proportion)) +</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">#  geom_tile() +</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">#  scale_fill_gradient(low = "cornflowerblue", high = "blue") +</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co">#  labs(title = "Heatmap of Top 10 Dog Breeds by Count",</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co">#       x = "Year",</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a> <span class="co">#      y = "Dog Breed",</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="co">#       fill = "Proportion") +</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co">#  theme_minimal()</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>popular_breeds <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(counts_breed_filtered, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(Year), <span class="at">y =</span> <span class="fu">fct_rev</span>(<span class="fu">reorder</span>(BreedName, BreedName)))) <span class="sc">+</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="fu">aes</span>(<span class="at">fill =</span> proportion), <span class="at">color =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>() <span class="sc">+</span> </span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient2</span>(<span class="at">low =</span> <span class="st">"lightblue"</span>,</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>                       <span class="at">high =</span> <span class="st">"darkblue"</span>) <span class="sc">+</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Heatmap of Most Popular Breeds"</span>,</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Year"</span>,</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Dog Breed"</span>,</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Proportion of Total Dogs in Year"</span>) <span class="sc">+</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>popular_breeds </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># popular dog names overall</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>dogs<span class="sc">$</span>AnimalName[dogs<span class="sc">$</span>AnimalName <span class="sc">==</span> <span class="st">"UNKNOWN"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>dogs<span class="sc">$</span>AnimalName[dogs<span class="sc">$</span>AnimalName <span class="sc">==</span> <span class="st">"NOT PROVIDED"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>dogs<span class="sc">$</span>AnimalName[dogs<span class="sc">$</span>AnimalName <span class="sc">==</span> <span class="st">"NAME NOT PROVIDED"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>dogs<span class="sc">$</span>AnimalName[dogs<span class="sc">$</span>AnimalName <span class="sc">==</span> <span class="st">"NA"</span>] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>counts_name <span class="ot">&lt;-</span> dogs <span class="sc">|&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(AnimalGender, AnimalName) <span class="sc">|&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(count)) <span class="sc">|&gt;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n=</span><span class="dv">10</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>filtered_data_names_F <span class="ot">&lt;-</span> counts_name <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(AnimalName)) <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(AnimalGender)) <span class="sc">|&gt;</span> <span class="fu">filter</span>(AnimalGender <span class="sc">==</span> <span class="st">"F"</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>filtered_data_names_M <span class="ot">&lt;-</span> counts_name <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(AnimalName)) <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(AnimalGender)) <span class="sc">|&gt;</span> <span class="fu">filter</span>(AnimalGender <span class="sc">==</span> <span class="st">"M"</span>)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>names_F <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(filtered_data_names_F, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(AnimalName, count), <span class="at">y =</span> count)) <span class="sc">+</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"skyblue"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span> <span class="co"># Bar chart</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Top 10 Most Popular Female Names, All Years"</span>, <span class="at">x =</span> <span class="st">"Year"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span>         <span class="co"># Labels</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="co"># Tilt labels by 45 degrees</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>names_F</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>names_M <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(filtered_data_names_M, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(AnimalName, count), <span class="at">y =</span> count)) <span class="sc">+</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>, <span class="at">fill =</span> <span class="st">"skyblue"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span> <span class="co"># Bar chart</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Top 10 Most Popular Male Names, All Years"</span>, <span class="at">x =</span> <span class="st">"Year"</span>, <span class="at">y =</span> <span class="st">"Count"</span>) <span class="sc">+</span>         <span class="co"># Labels</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)) <span class="co"># Tilt labels by 45 degrees</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>names_M</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>combined_plot <span class="ot">&lt;-</span> names_F <span class="sc">+</span> names_M <span class="sc">+</span> <span class="fu">plot_layout</span>(<span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>combined_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-9-3.png" class="img-fluid figure-img" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># dog bite</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>dog_bite <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/DOHMH_Dog_Bite_Data_20241119.csv"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>year <span class="ot">&lt;-</span> <span class="fu">substr</span>(dog_bite<span class="sc">$</span>DateOfBite, <span class="fu">nchar</span>(dog_bite<span class="sc">$</span>DateOfBite) <span class="sc">-</span> <span class="dv">3</span>, <span class="fu">nchar</span>(dog_bite<span class="sc">$</span>DateOfBite))</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>dog_bite <span class="ot">&lt;-</span> dog_bite <span class="sc">|&gt;</span> <span class="fu">filter</span>(year <span class="sc">&gt;=</span> <span class="st">"2016"</span> <span class="sc">&amp;</span> year <span class="sc">&lt;=</span> <span class="st">"2022"</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co"># DOG BITES - group together most popular dog breeds</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"pit bull terrier"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"American Pit Bull Terrier/Pit Bull"</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"pit bull mix"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"American Pit Bull Mix / Pit Bull Mix"</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"chihuahua"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"Chihuahua"</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"labrador retriever"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"Labrador Retriever"</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"labrador retriever crossbreed"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"Labrador Retriever Crossbreed"</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"labrador retriever mix"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"Labrador Retriever Crossbreed"</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"maltese"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"Maltese"</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"goldendoodle"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"Goldendoodle"</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"golden doodle"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"Goldendoodle"</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"pomeranian"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"Pomeranian"</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"poodle crossbreed"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"Poodle Crossbreed"</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"poodle mix"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"Poodle Crossbreed"</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"shih tzu"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"Shih Tzu"</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"shih tzu crossbreed"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"Shih Tzu Crossbreed"</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"shih tzu mix"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"Shih Tzu Crossbreed"</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>dog_bite<span class="sc">$</span>breedgroup[<span class="fu">grepl</span>(<span class="st">"yorkshire terrier"</span>, dog_bite<span class="sc">$</span>Breed, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)] <span class="ot">&lt;-</span> <span class="st">"Yorkshire Terrier"</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>filtered_bites <span class="ot">&lt;-</span> dog_bite <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(breedgroup))</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>counts_bite_group <span class="ot">&lt;-</span> filtered_bites <span class="sc">|&gt;</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(year, breedgroup) <span class="sc">|&gt;</span></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count_bites =</span> <span class="fu">n</span>())</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>counts_bite_group <span class="ot">&lt;-</span> <span class="fu">rename</span>(counts_bite_group, <span class="at">breed =</span> breedgroup)</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a><span class="co"># most popular dog breeds</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>counts_popular <span class="ot">&lt;-</span> dogs <span class="sc">|&gt;</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Year, BreedName) <span class="sc">|&gt;</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">count_dogs =</span> <span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>counts_popular <span class="ot">&lt;-</span> <span class="fu">rename</span>(counts_popular, <span class="at">breed =</span> BreedName)</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>counts_popular <span class="ot">&lt;-</span> <span class="fu">rename</span>(counts_popular, <span class="at">year =</span> Year)</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a><span class="co"># only keep certain breeds</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>filtered_df <span class="ot">&lt;-</span> counts_popular <span class="sc">|&gt;</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(breed <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"American Pit Bull Terrier/Pit Bull"</span>, <span class="st">"American Pit Bull Mix / Pit Bull Mix"</span>, </span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"Chihuahua"</span>, <span class="st">"Labrador Retriever"</span>,</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"Labrador Retriever Crossbreed"</span>, <span class="st">"Maltese"</span>,</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"Goldendoodle"</span>, <span class="st">"Pomeranian"</span>, <span class="st">"Poodle Crossbreed"</span>,</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"Shih Tzu Crossbreed"</span>, <span class="st">"Yorkshire Terrier"</span>,</span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"Shih Tzu"</span>))</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">&lt;-</span> <span class="fu">merge</span>(counts_bite_group, filtered_df, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"breed"</span>))</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>merged <span class="ot">&lt;-</span> merged <span class="sc">|&gt;</span></span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">bite_pop_ratio =</span> <span class="fu">log</span>(count_bites <span class="sc">/</span> count_dogs))</span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RColorBrewer)</span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(merged, <span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> bite_pop_ratio, <span class="at">color =</span> breed, <span class="at">group =</span> breed)) <span class="sc">+</span></span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size=</span><span class="dv">3</span>, <span class="at">alpha=</span><span class="fl">0.8</span>, <span class="at">shape=</span><span class="dv">17</span>, <span class="at">stroke=</span><span class="dv">1</span>)  <span class="sc">+</span> </span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">rev</span>(<span class="fu">brewer.pal</span>(<span class="dv">12</span>, <span class="st">"Paired"</span>)))<span class="sc">+</span></span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Time Series of Bites by Breed"</span>,</span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Year"</span>, <span class="at">y =</span> <span class="st">"Log of Bite-to-Population Ratio"</span>) <span class="sc">+</span></span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="results_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="960"></p>
 </figure>
 </div>
 </div>

@@ -9,6 +9,78 @@ library(patchwork)
 ```
 
 ```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
+dogs <- read_csv("data/NYC_Dog_Licensing_Dataset_20241119.csv")
+
+dogs$BreedName[dogs$BreedName == "Unknown"] <- NA
+dogs$BreedName[dogs$BreedName == "Not Provided"] <- NA
+
+names(dogs)[names(dogs) == "Extract Year"] <- "Year"
+
+dogs <- dogs |>
+  group_by(Year) |>
+  mutate(unique_types = n_distinct(BreedName))
+
+counts <- dogs |>
+  group_by(Year) |>
+  summarise(count = n())
+
+# ownership counts
+
+ownership <- ggplot(counts, aes(x = factor(Year), y = count)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") + # Bar chart
+  labs(title = "Licenses Acquired by Year", x = "Year", y = "Count") +         # Labels
+  theme_minimal() 
+ownership
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
+counts_zip <- dogs |>
+  group_by(Year, ZipCode) |>
+  summarise(count = n())
+
+counts_zip$borough <- NA
+counts_zip$borough[counts_zip$ZipCode >= 10001 & counts_zip$ZipCode <= 10128] <- "Manhattan"
+counts_zip$borough[counts_zip$ZipCode >= 11004 & counts_zip$ZipCode <= 11697] <- "Queens"
+counts_zip$borough[counts_zip$ZipCode >= 11201 & counts_zip$ZipCode <= 11239] <- "Brooklyn"
+counts_zip$borough[counts_zip$ZipCode >= 10451 & counts_zip$ZipCode <= 10474] <- "Bronx"
+counts_zip$borough[counts_zip$ZipCode >= 10301 & counts_zip$ZipCode <= 10314] <- "Staten Island"
+
+counts_borough <- counts_zip |>
+  group_by(Year, borough) |>
+  summarise(totalcount = sum(count))
+
+# Add a row for the year 2020 with count = NA for each borough
+data_with_2020 <- counts_borough |>
+  bind_rows(data.frame(Year = 2020, borough = unique(counts_borough$borough), count = NA)) |>
+  bind_rows(data.frame(Year = 2021, borough = unique(counts_borough$borough), count = NA))
+
+# Sort the data by borough and year (optional)
+data_with_2020 <- data_with_2020 %>%
+  arrange(borough, Year)
+
+borough <- ggplot(data_with_2020, aes(x = Year, y = totalcount, color = borough, group = borough)) +
+  geom_line(size = 1, na.rm = TRUE) +                            # Line for each borough
+  geom_point(size = 2) +                           # Points for each year
+  labs(title = "Count Over Years by Borough",      # Title
+       x = "Year",                                 # X-axis label
+       y = "Count",                                # Y-axis label
+       color = "Borough") +                        # Legend title
+  theme_minimal()
+
+filtered_data <- data_with_2020 %>% filter(!is.na(borough))
+
+# Bar chart for count over years by borough
+borough_bar <- ggplot(filtered_data, aes(x = factor(Year), y = totalcount, fill = borough)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black") +  # Bars side-by-side
+  labs(title = "Count Over Years by Borough",                        # Title
+       x = "Year",                                                   # X-axis label
+       y = "Count",                                                  # Y-axis label
+       fill = "Borough") +                                           # Legend title
+  theme_minimal()
+borough_bar 
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
 dog_license_data <- read_csv("data/NYC_Dog_Licensing_Dataset_20241119.csv")
 
 zip_code_sf <- st_read("data/geo_export_e35ad098-30ed-4f6e-9a13-eb60cbe27bb9.shp") |> 
@@ -110,3 +182,145 @@ ggplot(dog_license_breed_count_by_borough, aes(x = count, y = BreedName)) +
 
 ```
 
+```{r fig.width=10, fig.height=12, message=FALSE, warning=FALSE}
+# most popular dog breeds
+counts_breed <- dogs |>
+  group_by(Year, BreedName) |>
+  summarise(count = n()) |>
+  mutate(proportion = count/ sum(count))
+
+counts_breed <- counts_breed %>%
+  arrange(Year, proportion) 
+
+# Sort the data by borough and year (optional)
+counts_breed <- counts_breed %>%
+#  arrange(Year) |> 
+  mutate(BreedName = ifelse(proportion < 0.02, "Other", BreedName)) %>%  # Reassign low counts to "Other"
+  group_by(Year, BreedName) %>%                                       # Group by the new breed categories
+  summarize(proportion = sum(proportion, na.rm = TRUE), .groups = "drop")  # Sum counts within each group
+
+counts_breed_filtered <- counts_breed %>% filter(BreedName != "Other")
+
+#ggplot(counts_breed_filtered, aes(x = factor(Year), y = fct_rev(reorder(BreedName, BreedName)), fill = proportion)) +
+#  geom_tile() +
+#  scale_fill_gradient(low = "cornflowerblue", high = "blue") +
+#  labs(title = "Heatmap of Top 10 Dog Breeds by Count",
+#       x = "Year",
+ #      y = "Dog Breed",
+#       fill = "Proportion") +
+#  theme_minimal()
+
+popular_breeds <- ggplot(counts_breed_filtered, aes(x = factor(Year), y = fct_rev(reorder(BreedName, BreedName)))) +
+  geom_tile(aes(fill = proportion), color = "white") +
+  coord_fixed() + 
+  scale_fill_gradient2(low = "lightblue",
+                       high = "darkblue") +
+  labs(title = "Heatmap of Most Popular Breeds",
+       x = "Year",
+       y = "Dog Breed",
+       fill = "Proportion of Total Dogs in Year") +
+  theme_minimal()
+popular_breeds 
+```
+
+```{r fig.width=10, fig.height=8, message=FALSE, warning=FALSE}
+# popular dog names overall
+dogs$AnimalName[dogs$AnimalName == "UNKNOWN"] <- NA
+dogs$AnimalName[dogs$AnimalName == "NOT PROVIDED"] <- NA
+dogs$AnimalName[dogs$AnimalName == "NAME NOT PROVIDED"] <- NA
+dogs$AnimalName[dogs$AnimalName == "NA"] <- NA
+
+counts_name <- dogs |>
+  group_by(AnimalGender, AnimalName) |>
+  summarise(count = n()) |>
+  arrange(desc(count)) |>
+  slice_head(n=10)
+
+filtered_data_names_F <- counts_name |> filter(!is.na(AnimalName)) |> filter(!is.na(AnimalGender)) |> filter(AnimalGender == "F")
+filtered_data_names_M <- counts_name |> filter(!is.na(AnimalName)) |> filter(!is.na(AnimalGender)) |> filter(AnimalGender == "M")
+
+names_F <- ggplot(filtered_data_names_F, aes(x = reorder(AnimalName, count), y = count)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") + # Bar chart
+  labs(title = "Top 10 Most Popular Female Names, All Years", x = "Year", y = "Count") +         # Labels
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Tilt labels by 45 degrees
+names_F
+
+names_M <- ggplot(filtered_data_names_M, aes(x = reorder(AnimalName, count), y = count)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") + # Bar chart
+  labs(title = "Top 10 Most Popular Male Names, All Years", x = "Year", y = "Count") +         # Labels
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Tilt labels by 45 degrees
+names_M
+
+combined_plot <- names_F + names_M + plot_layout(ncol = 2)
+combined_plot
+```
+
+```{r fig.width=10, fig.height=8, message=FALSE, warning=FALSE}
+# dog bite
+
+dog_bite <- read_csv("data/DOHMH_Dog_Bite_Data_20241119.csv")
+
+dog_bite$year <- substr(dog_bite$DateOfBite, nchar(dog_bite$DateOfBite) - 3, nchar(dog_bite$DateOfBite))
+
+dog_bite <- dog_bite |> filter(year >= "2016" & year <= "2022")
+
+# DOG BITES - group together most popular dog breeds
+dog_bite$breedgroup <- NA
+dog_bite$breedgroup[grepl("pit bull terrier", dog_bite$Breed, ignore.case = TRUE)] <- "American Pit Bull Terrier/Pit Bull"
+dog_bite$breedgroup[grepl("pit bull mix", dog_bite$Breed, ignore.case = TRUE)] <- "American Pit Bull Mix / Pit Bull Mix"
+dog_bite$breedgroup[grepl("chihuahua", dog_bite$Breed, ignore.case = TRUE)] <- "Chihuahua"
+dog_bite$breedgroup[grepl("labrador retriever", dog_bite$Breed, ignore.case = TRUE)] <- "Labrador Retriever"
+dog_bite$breedgroup[grepl("labrador retriever crossbreed", dog_bite$Breed, ignore.case = TRUE)] <- "Labrador Retriever Crossbreed"
+dog_bite$breedgroup[grepl("labrador retriever mix", dog_bite$Breed, ignore.case = TRUE)] <- "Labrador Retriever Crossbreed"
+dog_bite$breedgroup[grepl("maltese", dog_bite$Breed, ignore.case = TRUE)] <- "Maltese"
+dog_bite$breedgroup[grepl("goldendoodle", dog_bite$Breed, ignore.case = TRUE)] <- "Goldendoodle"
+dog_bite$breedgroup[grepl("golden doodle", dog_bite$Breed, ignore.case = TRUE)] <- "Goldendoodle"
+dog_bite$breedgroup[grepl("pomeranian", dog_bite$Breed, ignore.case = TRUE)] <- "Pomeranian"
+dog_bite$breedgroup[grepl("poodle crossbreed", dog_bite$Breed, ignore.case = TRUE)] <- "Poodle Crossbreed"
+dog_bite$breedgroup[grepl("poodle mix", dog_bite$Breed, ignore.case = TRUE)] <- "Poodle Crossbreed"
+dog_bite$breedgroup[grepl("shih tzu", dog_bite$Breed, ignore.case = TRUE)] <- "Shih Tzu"
+dog_bite$breedgroup[grepl("shih tzu crossbreed", dog_bite$Breed, ignore.case = TRUE)] <- "Shih Tzu Crossbreed"
+dog_bite$breedgroup[grepl("shih tzu mix", dog_bite$Breed, ignore.case = TRUE)] <- "Shih Tzu Crossbreed"
+dog_bite$breedgroup[grepl("yorkshire terrier", dog_bite$Breed, ignore.case = TRUE)] <- "Yorkshire Terrier"
+
+filtered_bites <- dog_bite |> filter(!is.na(breedgroup))
+
+counts_bite_group <- filtered_bites |>
+  group_by(year, breedgroup) |>
+  summarise(count_bites = n())
+
+counts_bite_group <- rename(counts_bite_group, breed = breedgroup)
+
+# most popular dog breeds
+counts_popular <- dogs |>
+  group_by(Year, BreedName) |>
+  summarise(count_dogs = n(), .groups = "drop")
+counts_popular <- rename(counts_popular, breed = BreedName)
+counts_popular <- rename(counts_popular, year = Year)
+
+# only keep certain breeds
+filtered_df <- counts_popular |>
+  filter(breed %in% c("American Pit Bull Terrier/Pit Bull", "American Pit Bull Mix / Pit Bull Mix", 
+                      "Chihuahua", "Labrador Retriever",
+                      "Labrador Retriever Crossbreed", "Maltese",
+                      "Goldendoodle", "Pomeranian", "Poodle Crossbreed",
+                      "Shih Tzu Crossbreed", "Yorkshire Terrier",
+                      "Shih Tzu"))
+
+
+merged <- merge(counts_bite_group, filtered_df, by = c("year", "breed"))
+
+merged <- merged |>
+  mutate(bite_pop_ratio = log(count_bites / count_dogs))
+
+library(RColorBrewer)
+
+ggplot(merged, aes(x = year, y = bite_pop_ratio, color = breed, group = breed)) +
+  geom_point(size=3, alpha=0.8, shape=17, stroke=1)  + 
+  scale_colour_manual(values = rev(brewer.pal(12, "Paired")))+
+  labs(title = "Time Series of Bites by Breed",
+       x = "Year", y = "Log of Bite-to-Population Ratio") +
+  theme_minimal()
+```
