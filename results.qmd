@@ -324,3 +324,197 @@ ggplot(merged, aes(x = year, y = bite_pop_ratio, color = breed, group = breed)) 
        x = "Year", y = "Log of Bite-to-Population Ratio") +
   theme_minimal()
 ```
+
+
+```{r}
+dogs <- read_csv("NYC_Dog_Licensing_Dataset_20241117.csv")
+zipcodes <- read_csv("New_York_State_ZIP_Codes-County_FIPS_Cross-Reference.csv")
+
+census2023 <- read_csv("US_census_2023NYC.csv")
+census2023 <- census2023[ c(1,2,4,6,8,10) ]
+
+census2023 <- census2023[-c(1:6,40:46,64:232,266:345),]
+
+census_ages <- census2023[c(2, 5:13),]
+census_households <- census2023[c(35:50),]
+census_income <- census2023[c(52:72),]
+
+total_pop_bronx <- as.numeric(gsub(",","", census_ages$`Bronx County, New York!!Total population!!Estimate`[1]))
+census_ages$`Bronx` <- as.numeric(gsub("%", "", census_ages$`Bronx County, New York!!Total population!!Estimate` )) / 100 * total_pop_bronx
+
+total_pop_kings <- as.numeric(gsub(",","", census_ages$`Kings County, New York!!Total population!!Estimate`[1]))
+census_ages$`Kings` <- as.numeric(gsub("%", "", census_ages$`Kings County, New York!!Total population!!Estimate`)) / 100 * total_pop_kings
+
+total_pop_ny <- as.numeric(gsub(",","", census_ages$`New York County, New York!!Total population!!Estimate`[1]))
+census_ages$`New York` <- as.numeric(gsub("%", "", census_ages$`New York County, New York!!Total population!!Estimate` )) / 100 * total_pop_ny
+
+total_pop_queens <- as.numeric(gsub(",","", census_ages$`Queens County, New York!!Total population!!Estimate`[1]))
+census_ages$`Queens` <- as.numeric(gsub("%", "", census_ages$`Queens County, New York!!Total population!!Estimate` )) / 100 * total_pop_queens
+
+ages_long <- select(census_ages, c(1,7:10))[c(2:10),]
+
+ages_long <- ages_long |>
+  rename(ages = `Label (Grouping)`)
+
+ages_long <- ages_long |>
+  pivot_longer(cols = `Bronx`:`Queens`, 
+               names_to = "Borough", 
+               values_to = "Population") 
+
+ggplot(ages_long, aes(x = Population, 
+                      y = fct_reorder(ages, Population))) + 
+  geom_point() +
+  facet_grid(fct_infreq(Borough) ~ ., scales = "free_y") + 
+  theme(text = element_text(size = 8)) +
+  labs(title = "Population Distribution by Age Group and Borough",
+       x = "Population",
+       y = "Age Group") +
+  theme(legend.position = "top") 
+
+
+```
+
+```{r}
+households_long <- select(census_households, c(1, 3:6))[c(2:3, 8, 10, 11, 13, 14),]
+households_long <- households_long |>
+  rename(household_type = `Label (Grouping)`)
+
+households_long$`Bronx County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", households_long$`Bronx County, New York!!Total population!!Estimate`))
+households_long <- households_long |> rename(Bronx = `Bronx County, New York!!Total population!!Estimate`)
+
+households_long$`New York County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", households_long$`New York County, New York!!Total population!!Estimate`))
+households_long <- households_long |> rename(Manhattan = `New York County, New York!!Total population!!Estimate`)
+
+households_long$`Kings County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", households_long$`Kings County, New York!!Total population!!Estimate`))
+households_long <- households_long |> rename(Brooklyn = `Kings County, New York!!Total population!!Estimate`)
+
+households_long$`Queens County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", households_long$`Queens County, New York!!Total population!!Estimate`))
+households_long <- households_long |> rename(Queens = `Queens County, New York!!Total population!!Estimate`)
+
+households_long <- households_long |>
+  pivot_longer(cols = `Bronx`:`Queens`, 
+               names_to = "Borough", 
+               values_to = "Percentage") 
+
+familyhouseholds <- households_long[c(1:4,9:12),]
+
+household_plot1 <- ggplot(familyhouseholds, aes(x = Borough, y = Percentage, fill = household_type)) +
+  geom_bar(stat = "identity") +  # Use actual values (percentage) for the bar heights
+  labs(
+    title = "Household Composition by Borough",
+    x = "Borough",
+    y = "Percentage of Total Households"
+  ) +
+  theme_minimal()
+
+
+data <- data.frame(
+  row_id = c("row1", "row2"),
+  value = c(40, 30)
+)
+
+withoutchildren_bronx <- households_long$Percentage[1] - households_long$Percentage[5]
+withoutchildren_manhattan <- households_long$Percentage[3] - households_long$Percentage[7]
+withoutchildren_brooklyn <- households_long$Percentage[2] - households_long$Percentage[6]
+withoutchildren_queens <- households_long$Percentage[4] - households_long$Percentage[8]
+
+# Create a new row with the calculated difference
+withoutchildren_bronx <- data.frame(household_type = "withoutchildren", Borough = "Bronx", Percentage = withoutchildren_bronx)
+withoutchildren_manhattan <- data.frame(household_type = "withoutchildren", Borough = "Manhattan", Percentage = withoutchildren_manhattan)
+withoutchildren_brooklyn <- data.frame(household_type = "withoutchildren", Borough = "Brooklyn", Percentage = withoutchildren_brooklyn)
+withoutchildren_queens <- data.frame(household_type = "withoutchildren", Borough = "Queens", Percentage = withoutchildren_queens)
+
+
+# Add the new row to the original data
+households_long <- rbind(households_long, withoutchildren_bronx)
+households_long <- rbind(households_long, withoutchildren_brooklyn)
+households_long <- rbind(households_long, withoutchildren_manhattan)
+households_long <- rbind(households_long, withoutchildren_queens)
+
+specificfamily <- households_long[c(5:8,13:32),]
+
+specificfamily <- specificfamily|>
+  group_by(Borough, household_type) |>
+  summarize(Percentage = sum(Percentage), .groups = "drop")
+
+household_plot2 <- ggplot(specificfamily, aes(x = Borough, y = Percentage, fill = household_type)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Household Composition by Borough",
+    x = "Borough",
+    y = "Percentage of Total Households"
+  ) +
+  theme_minimal()
+
+household_plot1
+household_plot2
+```
+
+```{r}
+income_long <- select(census_income, c(1, 3:6))[c(2:3, 5,7,9,11,13),]
+income_long <- income_long |>
+  rename(income_type = `Label (Grouping)`)
+
+income_long$`Bronx County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", income_long$`Bronx County, New York!!Total population!!Estimate`))
+income_long <- income_long |> rename(Bronx = `Bronx County, New York!!Total population!!Estimate`)
+
+income_long$`New York County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", income_long$`New York County, New York!!Total population!!Estimate`))
+income_long <- income_long |> rename(Manhattan = `New York County, New York!!Total population!!Estimate`)
+
+income_long$`Kings County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", income_long$`Kings County, New York!!Total population!!Estimate`))
+income_long <- income_long |> rename(Brooklyn = `Kings County, New York!!Total population!!Estimate`)
+
+income_long$`Queens County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", income_long$`Queens County, New York!!Total population!!Estimate`))
+income_long <- income_long |> rename(Queens = `Queens County, New York!!Total population!!Estimate`)
+
+income_long <- income_long |>
+  pivot_longer(cols = `Bronx`:`Queens`, 
+               names_to = "Borough", 
+               values_to = "Percentage") 
+
+income_percentage <- income_long[c(5:28),]
+
+income_plot <- ggplot(income_percentage, aes(x = Borough, y = Percentage, fill = income_type)) +
+  geom_bar(stat = "identity", position = "dodge") +  # Use actual values (percentage) for the bar heights
+  labs(
+    title = "Income Composition by Borough",
+    x = "Borough",
+    y = "Percentage of Total Income"
+  ) +
+  theme_minimal()
+
+ggplot(ages_long, aes(x = Population, 
+                      y = fct_reorder(ages, Population))) + 
+  geom_point() +
+  facet_grid(fct_infreq(Borough) ~ ., scales = "free_y") + 
+  theme(text = element_text(size = 8)) +
+  labs(title = "Population Distribution by Age Group and Borough",
+       x = "Population",
+       y = "Age Group") +
+  theme(legend.position = "top") 
+
+income_dollars <- census_income[c(2),]
+
+income_dollars <- income_dollars|> rename(Queens = `Queens County, New York!!Total population!!Estimate`)
+income_dollars <- income_dollars|> rename(Brooklyn = `Kings County, New York!!Total population!!Estimate`)
+income_dollars <- income_dollars|> rename(Manhattan = `New York County, New York!!Total population!!Estimate`)
+income_dollars <- income_dollars|> rename(Bronx = `Bronx County, New York!!Total population!!Estimate`)
+
+
+income_dollars <- income_dollars |>
+  pivot_longer(cols = Bronx:Queens, 
+               names_to = "Borough", 
+               values_to = "Income")
+income_dollars$Income <- as.numeric(gsub(",","", income_dollars$Income))/1000
+
+ggplot(income_dollars, aes(x = Income, 
+                      y = reorder(Borough, Income))) + 
+  geom_point() +
+  labs(title = "Median Income by Borough",
+       x = "Income in $1,000s",
+       y = "Borough") +
+  theme(legend.position = "top") 
+
+income_plot
+```
+
