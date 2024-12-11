@@ -39,7 +39,7 @@ The dataset also includes a margin of error. Since census data is collected thro
 
 ## Missing value analysis
 
-```{r, echo=FALSE}
+```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(ggplot2)
 library(DataExplorer)
@@ -60,7 +60,7 @@ plot_missing(dogs, title = "Dog License Data")
 Within the dog licensing data, we observed that around 9% of records are missing values for dog breed. This is within the acceptable range determined by the library and is understandable given that not all dog owners are confident in knowing the breed of their dog (for example, rescue dogs).
 
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 
 dog_bite <- read_csv("data/DOHMH_Dog_Bite_Data_20241119.csv")
 
@@ -72,7 +72,7 @@ plot_missing(dog_bite, title = "Dog Bite Data")
 ```
 Within the dog licensing data, we observed that around 9% of records are missing values for dog breed. This falls within an acceptable range for our analysis. Additionally, multiple columns contained missing data including breed, zip code, gender and age. Gender and age were not within the acceptable range of missing values, so we will avoid using these values in our analysis. 
 
-```{r fig.width=10, fig.height=20}
+```{r fig.width=10, fig.height=20, message=FALSE, warning=FALSE}
 
 census_median_income_data <- read_csv("data/ACSST1Y2023.S2001-2024-11-20T015529.csv")
 
