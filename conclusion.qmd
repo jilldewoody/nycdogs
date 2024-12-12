@@ -1,1 +1,6 @@
 # Conclusion
+
+Our analysis first decomposed dog ownership data into major trends over time and geography. We took a closer look at overall ownership levels by year and borough. We supplemented our spatial analysis by looking at the relationship between dog ownership and proximity to green space. Given the apparent correlation between location and dog ownership, we next took a look at demographic and social characteristics by borough. Lastly, we constructed counts for the most popular dog breeds and dog names. We looked at dog bite-to-population rates for these most popular breeds.
+
+Dog ownership was persistent across boroughs and time in New York City. Certain dog breeds and names were consistently popular. Overall, we noted that there seemed to be strong relationships between dog ownership and location. We also observed interesting age, household composition, and income trends in high dog ownership areas, though no direct causality could be established.
+
