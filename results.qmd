@@ -425,7 +425,14 @@ dog_license_breed_count_by_borough <- dog_license_data |>
   arrange(desc(count)) |> 
   slice_head(n=5)
 
-ggplot(dog_license_breed_count_by_borough, aes(x = count, y = reorder(BreedName,count))) +
+dog_license_breed_count_by_borough$Borough <- as.factor(dog_license_breed_count_by_borough$Borough)
+dog_license_breed_count_by_borough$Borough <- factor(dog_license_breed_count_by_borough$Borough, levels = c("Manhattan", "Brooklyn", "Queens", "Bronx", "Staten Island"))
+dog_license_breed_count_by_borough$BreedName <- as.factor(dog_license_breed_count_by_borough$BreedName)
+levels(dog_license_breed_count_by_borough$BreedName)
+dog_license_breed_count_by_borough$BreedName <- factor(dog_license_breed_count_by_borough$BreedName, levels = c("Yorkshire Terrier", "Chihuahua", "Shih Tzu", "Labrador Retriever", "Labrador Retriever Crossbreed", "Maltese", "Pit Bull Terrier", "Pit Bull Mix"))
+
+
+ggplot(dog_license_breed_count_by_borough, aes(x = count, y = fct_rev(BreedName))) +
   geom_col(fill = "#A6CEE3") +
   facet_wrap(~Borough, scales="free_y") +
   labs(title = "What are the Most Popular Dog Breeds By Borough?") +
