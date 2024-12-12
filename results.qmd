@@ -118,7 +118,7 @@ ggplot() +
   scale_fill_distiller(name = "Dog-To-Human Population Ratio", palette = "Blues", direction = 1) +
   theme_void() +
   theme(panel.grid = element_line(color="transparent")) + 
-  labs(title = "Dog Ownership by Neighborhood")
+  labs(title = "Dog Ownership by Neighborhood", caption = "Figure 3")
 ```
 With the ratio calculation and spatial visualization, more interesting and nuanced trends emerge amongst the five boroughs. Manhattan still seems to be the borough with the most love for dogs. The highest density neighborhoods appear to be on the Upper West Side and Lower West Side around Chelsea. The further north, the lower density of dogs seems to be as Harlem and the Bronx have lower dog-to-human ratios. The Bronx seems to possess a low density of dogs with the exception of its northeast corner. Surprisingly, Staten Island seems to have one of the next highest density of dogs, despite possessing the lowest count of dogs. While Brooklyn showed the second highest counts of dogs, there is density clustered around neighborhoods closer to lower Manhattan before dropping off quickly in the southern and eastern neighborhoods. The same density trend appears in Queens. Neighborhoods near Midtown Manhattan show higher dog ownership density that quickly dissipates as neighborhoods move further east. 
 
@@ -162,7 +162,7 @@ brooklyn_plot <- ggplot() +
   labs(title = "Brooklyn")
 
 (manhattan_plot | brooklyn_plot) +
-  plot_annotation(title = "Dog Ownership in Proximity to Green Spaces")
+  plot_annotation(title = "Dog Ownership in Proximity to Green Spaces", caption = "Figure 4")
 ```
 
 In Manhattan, zip codes surrounding Central Park displayed the high ratios of dog ownership. Particularly the Upper West Side which is surrounded both by Central Park to the East and Riverside Park to the West. There were some zip codes of Manhattan which did not fit the pattern. At the North tip of Manhattan are two large parks - Inwood Hill Park and Fort Tyron Park. However the zip codes surrounding these had relatively low numbers of licensed dogs.
@@ -226,7 +226,7 @@ ggplot(ages_long, aes(x = Population,
   labs(title = "Population Distribution by Age Group and Borough",
        x = "Population",
        y = "Age Group",
-       caption = "Figure 9") +
+       caption = "Figure 5") +
   theme_minimal()+
   theme(legend.position = "top", axis.text.y = element_text(size=6))
 
@@ -275,7 +275,7 @@ household_plot1 <- ggplot(familyhouseholds, aes(x = Borough, y = Percentage, fil
     title = "Family vs. Nonfamily Composition by Borough",
     x = "Borough",
     y = "Percentage of Total Households",
-    caption = "Figure 10",
+    caption = "Figure 6",
     fill = "Household Type"
   ) +
   theme_minimal() +
@@ -326,7 +326,7 @@ household_plot2 <- ggplot(specificfamily, aes(x = Borough, y = Percentage, fill 
     x = "Borough",
     y = "Percentage of Total Households",
     fill = "Household Type",
-    caption = "Figure 11"
+    caption = "Figure 7"
   ) +
   theme_minimal() +
   scale_fill_brewer(palette = "Paired")
@@ -359,7 +359,7 @@ ggplot(income_dollars, aes(x = Income,
   labs(title = "Median Income by Borough",
        x = "Income in $1,000s",
        y = "Borough",
-       caption = "Figure 13") +
+       caption = "Figure 8") +
   theme(legend.position = "top") +
   theme_minimal()
 ```
@@ -401,7 +401,7 @@ income_plot <- ggplot(income_percentage, aes(x = Borough, y = Percentage, fill =
     x = "Borough",
     y = "Percentage of Total Income",
     fill = "Income Type",
-    caption = "Figure 12"
+    caption = "Figure 9"
   ) +
   theme_minimal() +
   scale_fill_brewer(palette = "Paired")
@@ -429,7 +429,7 @@ ggplot(dog_license_breed_count_by_borough, aes(x = count, y = reorder(BreedName,
   geom_col(fill = "#A6CEE3") +
   facet_wrap(~Borough, scales="free_y") +
   labs(title = "What are the Most Popular Dog Breeds By Borough?") +
-  labs(x = "Count of Licensed Dogs", y= "Dog Breed", caption = "Figure 5") +
+  labs(x = "Count of Licensed Dogs", y= "Dog Breed", caption = "Figure 10") +
   scale_y_discrete(labels = function(x) str_wrap(x, width = 15)) +
   theme_minimal()
 
@@ -463,7 +463,7 @@ popular_breeds <- ggplot(counts_breed_top, aes(x = factor(Year), y = fct_rev(reo
        x = "Year",
        y = "Dog Breed",
        fill = "Proportion of Total Dogs in Year",
-       caption = "Figure 6 \nNote: Popular defined as those breeds representing > 2% of overall licenses in a year") +
+       caption = "Figure 11 \nNote: Popular defined as those breeds representing > 2% of overall licenses in a year") +
   theme_minimal() +
   theme(plot.caption = element_text(size = 8))
 popular_breeds 
@@ -500,7 +500,7 @@ names_F <- ggplot(filtered_data_names_F, aes(x = reorder(AnimalName, -count), y 
 names_M <- ggplot(filtered_data_names_M, aes(x = reorder(AnimalName, -count), y = count)) +
   geom_bar(stat = "identity", fill = "#E31A1C") + 
   labs(title = "Top 10 Most Popular Male Names, All Years", x = "Name", y = "Count",
-       caption = "Figure 7") + 
+       caption = "Figure 12") + 
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         title = element_text(size = 8))  
@@ -572,7 +572,7 @@ ggplot(merged, aes(x = year, y = bite_pop_ratio, color = breed, group = breed)) 
   scale_colour_manual(values = rev(brewer.pal(12, "Paired")))+
   labs(title = "Time Series of Bites by Breed",
        x = "Year", y = "Log of Bite-to-Population Ratio",
-       caption = "Figure 8") +
+       caption = "Figure 13") +
   theme_minimal()
 ```
 The bite-to-popular ratio for all of the breeds seems to follow the same increased then decreased trend. This may be due to the construction of our measure or trends in reporting. More clear to interpret, though, are the highest ratios in each year. Both Pit Bull breeds are consistently at the top of the ratio scale, with small dogs like Chihuahuas not far behind. This may suggest that tendencies to bite may not be deterrents for dog ownership in New York City.
