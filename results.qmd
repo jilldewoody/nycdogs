@@ -236,14 +236,14 @@ filtered_data_names_M <- counts_name |> filter(!is.na(AnimalName)) |> filter(!is
 
 names_F <- ggplot(filtered_data_names_F, aes(x = reorder(AnimalName, -count), y = count)) +
   geom_bar(stat = "identity", fill = "#FB9A99") +
-  labs(title = "Top 10 Most Popular Female Names, All Years", x = "Year", y = "Count") + 
+  labs(title = "Top 10 Most Popular Female Names, All Years", x = "Name", y = "Count") + 
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         title = element_text(size = 8)) 
 
 names_M <- ggplot(filtered_data_names_M, aes(x = reorder(AnimalName, -count), y = count)) +
   geom_bar(stat = "identity", fill = "#E31A1C") + 
-  labs(title = "Top 10 Most Popular Male Names, All Years", x = "Year", y = "Count",
+  labs(title = "Top 10 Most Popular Male Names, All Years", x = "Name", y = "Count",
        caption = "Figure 7") + 
   theme_minimal()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
