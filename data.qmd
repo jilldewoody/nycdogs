@@ -11,11 +11,12 @@ The data covers licensing data from 2016-19 and 2023-23; it is missing 2020 and 
 
 The variables in this dataset require basic cleaning. For the dog name and dog breed variables, we code responses like "Not Provided" and "Unknown" as NA. Also, for some visualizations, we may want to define broader categories for the breeds of licensed dogs. For example, we may choose to group these two, "American Pit Bull Terrier/Pit Bull" and "American Pit Bull Mix/ Pit Bull Mix" into one breed "American Pit Bull".
 
-2. Spatial Dataset
+2. Spatial Datasets
 
-Link: 
+Link: (1) NYC ZipCodes at https://data.cityofnewyork.us/Health/Modified-Zip-Code-Tabulation-Areas-MODZCTA-/pri4-ifjk/data 
+(2) NYC Open Spaces at https://data.cityofnewyork.us/City-Government/NYC-Planimetric-Database-Open-Space-Parks-/g84h-jbjm
 
-* need to update!
+Descriptions: As part of our analysis, we want to visualize the impact of geography on dog ownership in New York City. To do this, we will leverage shapefiles made available by NYC Open Data. The first maps NYC zip codes to MultiPolygons. We can join this with our dog licensing data set which contains a column for zip code. The second spatial dataset maps NYC open spaces to Polygons. Open spaces include malls, parks, golf courses, and others. We will limit this dataset to just open spaces which can be utilized with dogs - namely these land use designations: "Flagship Park", "Community Park", "Neighborhood Park", and "Nature Area".
 
 3. Dog Bite Dataset
 
@@ -28,8 +29,6 @@ Our analysis will primarily use this data source to construct counts of bites fo
 The data requires basic cleaning. For the dog breed and other characteristic variables, we code responses like "Not Provided" and "Unknown" as NA. We did discover that this dataset contains a high number of missing values for some of the dog characteristics. We will make note to avoid using these specific characteristics in our analysis.
 
 4. US Census Bureau Data
-
-* need to update!
 
 Link: https://data.census.gov/table?g=040XX00US36_050XX00US36005,36047&y=2023&d=ACS%201-Year%20Estimates%20Selected%20Population%20Profiles
 
@@ -47,7 +46,7 @@ library(DataExplorer)
 dogs <- read_csv("data/NYC_Dog_Licensing_Dataset_20241119.csv")
 
 dogs$BreedName[dogs$BreedName == "Unknown"] <- NA
-dog_license_data$BreedName[dog_license_data$BreedName == "Not Provided"] <- NA
+dogs$BreedName[dogs$BreedName == "Not Provided"] <- NA
 
 dogs$AnimalName[dogs$AnimalName == "UNKNOWN"] <- NA
 dogs$AnimalName[dogs$AnimalName == "NOT PROVIDED"] <- NA

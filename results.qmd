@@ -118,7 +118,7 @@ ggplot() +
   scale_fill_distiller(name = "Dog-To-Human Population Ratio", palette = "Blues", direction = 1) +
   theme_void() +
   theme(panel.grid = element_line(color="transparent")) + 
-  labs(title = "What NYC neighborhoods have high dog ownership?", caption = "Figure 3")
+  labs(title = "Dog Ownership by Neighborhood")
 ```
 With the ratio calculation and spatial visualization, more interesting and nuanced trends emerge amongst the five boroughs. Manhattan still seems to be the borough with the most love for dogs. The highest density neighborhoods appear to be on the Upper West Side and Lower West Side around Chelsea. The further north, the lower density of dogs seems to be as Harlem and the Bronx have lower dog-to-human ratios. The Bronx seems to possess a low density of dogs with the exception of its northeast corner. Surprisingly, Staten Island seems to have one of the next highest density of dogs, despite possessing the lowest count of dogs. While Brooklyn showed the second highest counts of dogs, there is density clustered around neighborhoods closer to lower Manhattan before dropping off quickly in the southern and eastern neighborhoods. The same density trend appears in Queens. Neighborhoods near Midtown Manhattan show higher dog ownership density that quickly dissipates as neighborhoods move further east. 
 
@@ -162,7 +162,7 @@ brooklyn_plot <- ggplot() +
   labs(title = "Brooklyn")
 
 (manhattan_plot | brooklyn_plot) +
-  plot_annotation(title = "Does proximity to green space affect dog ownership?", caption = "Figure 4")
+  plot_annotation(title = "Dog Ownership in Proximity to Green Spaces")
 ```
 
 In Manhattan, zip codes surrounding Central Park displayed the high ratios of dog ownership. Particularly the Upper West Side which is surrounded both by Central Park to the East and Riverside Park to the West. There were some zip codes of Manhattan which did not fit the pattern. At the North tip of Manhattan are two large parks - Inwood Hill Park and Fort Tyron Park. However the zip codes surrounding these had relatively low numbers of licensed dogs.
@@ -566,7 +566,6 @@ filtered_popular <- counts_popular |>
 merged <- merge(counts_bite_group, filtered_popular, by = c("year", "breed"))
 merged <- merged |>
   mutate(bite_pop_ratio = log(count_bites / count_dogs))
-
 
 ggplot(merged, aes(x = year, y = bite_pop_ratio, color = breed, group = breed)) +
   geom_point(size=3, alpha=0.8, shape=17, stroke=1)  + 
