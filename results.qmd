@@ -30,7 +30,10 @@ zipcodes <- read_csv("data/New_York_State_ZIP_Codes-County_FIPS_Cross-Reference.
 
 census2023 <- read_csv("data/US_census_2023NYC.csv")
 ```
-To begin our analysis, we explored dog ownership trends over time to draw conclusions on the growth of New York City's dog population in relation to cultural shifts and world events.  
+## New Yorkers and Their Dogs Over Time
+Given licensing of dogs in New York City, we analyzed dog ownership overtime throughout the city as well as within each borough. The data shows the years 2016-2023 with missing years from 2019-2021 due to COVID-19 and its effects on regular data collection in New York.
+
+Surprisingly, or unsurprisingly if any of your friends or loved ones got a dog in the height of the pandemic, there’s a significant spike in 2022. 
 
 ```{r, warning=FALSE, message=FALSE}
 dog_license_data$BreedName[dog_license_data$BreedName == "Unknown"] <- NA
@@ -53,7 +56,9 @@ ownership <- ggplot(counts, aes(x = factor(Year), y = count)) +
 ownership
 ```
 
-Figure 1 plots total dog licenses acquired by year in New York City. While we cannot directly observe the counts during 2020 and 2021, there is an interesting spike present in 2022. It is clear that overall dog licenses spiked post-COVID before returning to a level similar to that pre-2020.  
+While the spike in 2022 is interesting, without counts from 2019-2021 it’s difficult to ascertain more specific causes of the spike. It could be delayed licensing of dogs acquired from 2019-2021, or it could be increased dog licensing in 2022. However, it is clear that overall dog licenses spiked in 2022 before returning to similar counts as prior to the pandemic.
+
+By separating the counts over time by borough, it’s interesting to see how boroughs compare in dog ownership overall as well as year over year. 
 
 ```{r, warning=FALSE, message=FALSE}
 counts_zip <- dog_license_data |>
@@ -89,9 +94,10 @@ borough_bar <- ggplot(counts_borough_w_2020, aes(x = factor(Year), y = totalcoun
   scale_fill_brewer(palette = "Paired")
 borough_bar 
 ```
-To further investigate dog license levels, we decompose overall counts by year into borough level counts in Figure 2. Manhattan and Brooklyn contribute the most to license counts in all years in our sample. We see that dog licenses spiked in 2022 across all five boroughs, before returning to a less inflated level in 2023. 
+Manhattan registered the most dog licenses each year by far, reaching a 5-year high in 2022 registering over 80,000 dogs, a number comparable to the population of the Upper West Side. Manhattan is followed by Brooklyn, Queens, Bronx, and Staten Island with the lowest number of dog licenses. Other than the aforementioned spike in 2022, the counts remain relatively stable over the years across all of the boroughs.
 
-While this borough breakdown provides insight into broad spatial trends in dog licenses, we wanted to take a closer look at the geographic distribution of dogs in New York City. In this portion of our analysis, we explored New York City's dog population spatially to draw conclusions about the impact of geography on population characteristics.
+## Zooming into Neighborhood Dog Ownership
+We wanted to take a closer look at the geographic distribution of dogs in New York City at a smaller scale. Using spatial analysis, we found the ratio of dogs to humans in different New York City neighborhoods. By calculating the ratio rather than the count itself, we could draw more interesting conclusions about the factors affecting dog ownership in New York City. 
 
 ```{r, warning=FALSE}
 
@@ -114,7 +120,14 @@ ggplot() +
   theme(panel.grid = element_line(color="transparent")) + 
   labs(title = "What NYC neighborhoods have high dog ownership?", caption = "Figure 3")
 ```
-From Figure 3, we observe that the zip codes with high ratios of licensed dog ownership tend to be in or in close proximity to Manhattan. The highest density zip code appears on the Upper West Side of Manhattan, a largely residential neighborhood. Density remains high in midtown and lower Manhattan, but is lower in Upper Manhattan. This trend is similar in Brooklyn. Neighborhoods closest to lower and midtown Manhattan have a high count of licensed dogs while neighborhoods deeper into Brooklyn and in Queens tend to have lower counts. Neighborhoods in Staten Island showed a high ratio of dog ownership as well. This graph, and in particular our observation on the Upper West Side, provoked us to ask another question. In the next figure, we explore the impact of green spaces on licensed dog population. 
+With the ratio calculation and spatial visualization, more interesting and nuanced trends emerge amongst the five boroughs. Manhattan still seems to be the borough with the most love for dogs. The highest density neighborhoods appear to be on the Upper West Side and Lower West Side around Chelsea. The further north, the lower density of dogs seems to be as Harlem and the Bronx have lower dog-to-human ratios. The Bronx seems to possess a low density of dogs with the exception of its northeast corner. Surprisingly, Staten Island seems to have one of the next highest density of dogs, despite possessing the lowest count of dogs. While Brooklyn showed the second highest counts of dogs, there is density clustered around neighborhoods closer to lower Manhattan before dropping off quickly in the southern and eastern neighborhoods. The same density trend appears in Queens. Neighborhoods near Midtown Manhattan show higher dog ownership density that quickly dissipates as neighborhoods move further east. 
+
+While interesting, this data does not show the same clear trends as the counts by borough showed. There’s clusters of denser dog ownership in each borough, and a generally high density in Manhattan neighborhoods compared to the other neighborhoods. 
+
+Motivated by these findings, we delved deeper into the effect of urban planning and demographics on dog ownership in New York City in an attempt to explore the potential social factors of dog ownership in the city. 
+
+## Dog Owners Going Green
+Knowing that dogs enjoy green spaces, we compared green space locations in New York City to the density of dog ownership. 
  
 ```{r, warning=FALSE}
 
@@ -151,14 +164,255 @@ brooklyn_plot <- ggplot() +
 (manhattan_plot | brooklyn_plot) +
   plot_annotation(title = "Does proximity to green space affect dog ownership?", caption = "Figure 4")
 ```
-In Manhattan, zip codes surrounding Central Park displayed the high ratios of dog ownership. Particularly the Upper West Side which is surrounded both by Central Park to the East and Riverside Park to the West. There were some zip codes of Manhattan which did not fit the pattern. At the North tip of Manhattan is two large parks - Inwood Hill Park and Fort Tyron Park. However the zip codes surrounding these had relatively low numbers of licensed dogs. 
 
-In Brooklyn, the trend is equally apparent. Zip codes surrounding Prospect Park, the second largest park in Brooklyn, had the highest licensed dog populations. Zip codes surrounding the largest park, Marine Park, had slightly higher counts relative to surrounding neighborhoods in outer Brooklyn. There are also high count neighborhoods surrounding Dyker Beach Park in South Brooklyn and Fort Greene Park in North Brooklyn.
-  
-Figure 4 led us to conclude that proximity to green space is correlated to dog population. This is a logical conclusion as being close to a green space allows ease of walking and socializing your pet. 
-  
-As we showed in the above two figures, geography has an impact on rates of dog ownership. We further wondered, does geography affect the most popular dog breeds? 
-  
+In Manhattan, zip codes surrounding Central Park displayed the high ratios of dog ownership. Particularly the Upper West Side which is surrounded both by Central Park to the East and Riverside Park to the West. There were some zip codes of Manhattan which did not fit the pattern. At the North tip of Manhattan are two large parks - Inwood Hill Park and Fort Tyron Park. However the zip codes surrounding these had relatively low numbers of licensed dogs.
+
+In Brooklyn, the trend is equally apparent. Zip codes surrounding Prospect Park, the second largest park in Brooklyn, had the highest licensed dog populations. Zip codes surrounding the largest park, Marine Park, had slightly higher counts relative to surrounding neighborhoods in outer Brooklyn. There are also high-count neighborhoods surrounding Dyker Beach Park in South Brooklyn and Fort Greene Park in North Brooklyn.
+
+From these results, we concluded that proximity to green space is correlated to dog population. This is a logical conclusion as being close to a green space allows ease of walking and socializing your pet. 
+
+
+## Age May Not Be Just a Number 
+
+Green space is determined by such factors as neighborhood tax revenue, local government, and more. From our findings regarding green space and its correlation to dog ownership, we began asking questions about other social or demographic factors related to dog ownership.
+
+In considering demographic factors that may affect dog ownership in New York City, we decided to investigate age first. Because dogs tend to be active, demanding pets to have in the household, we wanted to ascertain if the dominant age groups in any boroughs affected dog ownership trends in general ownership and breed. We used the age groupings provided by the Census and plotted them by borough to identify the dominant age groups in each borough that may contribute to the trends identified above. 
+
+
+```{r, message=FALSE, warning=FALSE}
+
+census2023 <- census2023[ c(1,2,4,6,8,10) ]
+census2023 <- census2023[-c(1:6,40:46,64:232,266:345),]
+
+census_ages <- census2023[c(2, 5:13),]
+census_households <- census2023[c(35:50),]
+census_income <- census2023[c(52:72),]
+
+total_pop_bronx <- as.numeric(gsub(",","", census_ages$`Bronx County, New York!!Total population!!Estimate`[1]))
+census_ages$`Bronx` <- as.numeric(gsub("%", "", census_ages$`Bronx County, New York!!Total population!!Estimate` )) / 100 * total_pop_bronx 
+
+total_pop_kings <- as.numeric(gsub(",","", census_ages$`Kings County, New York!!Total population!!Estimate`[1]))
+census_ages$`Brooklyn` <- as.numeric(gsub("%", "", census_ages$`Kings County, New York!!Total population!!Estimate`)) / 100 * total_pop_kings
+
+total_pop_ny <- as.numeric(gsub(",","", census_ages$`New York County, New York!!Total population!!Estimate`[1]))
+census_ages$`Manhattan` <- as.numeric(gsub("%", "", census_ages$`New York County, New York!!Total population!!Estimate` )) / 100 * total_pop_ny
+
+total_pop_queens <- as.numeric(gsub(",","", census_ages$`Queens County, New York!!Total population!!Estimate`[1]))
+census_ages$`Queens` <- as.numeric(gsub("%", "", census_ages$`Queens County, New York!!Total population!!Estimate` )) / 100 * total_pop_queens
+
+ages_long <- select(census_ages, c(1,7:10))[c(2:10),]
+ages_long[1, 1] <- "5 years and under"
+ages_long[2, 1] <- "5 to 17 years"
+ages_long[3, 1] <- "18 to 24 years"
+ages_long[4, 1] <- "25 to 34 years"
+ages_long[5, 1] <- "35 to 44 years"
+ages_long[6, 1] <- "45 to 54 years"
+ages_long[7, 1] <- "55 to 64 years"
+ages_long[8, 1] <- "65 to 74 years"
+ages_long[9, 1] <- "75 years and over"
+ages_long <- ages_long |>
+  rename(ages = `Label (Grouping)`)
+ages_long$ages <- as.factor(ages_long$ages)
+ages_long$ages <- factor(ages_long$ages, levels = c("5 years and under", "5 to 17 years", "18 to 24 years", "25 to 34 years", "35 to 44 years", "45 to 54 years", "55 to 64 years", "65 to 74 years", "75 years and over"))
+ages_long <- ages_long |>
+  pivot_longer(cols = `Bronx`:`Queens`, 
+               names_to = "Borough", 
+               values_to = "Population") 
+
+ggplot(ages_long, aes(x = Population, 
+                      y = ages)) + 
+  geom_point() +
+  facet_grid(fct_infreq(Borough) ~ ., scales = "free_y") + 
+  labs(title = "Population Distribution by Age Group and Borough",
+       x = "Population",
+       y = "Age Group",
+       caption = "Figure 9") +
+  theme_minimal()+
+  theme(legend.position = "top", axis.text.y = element_text(size=6))
+
+```
+Manhattan, New York, and Queens have the same dominant age group: 25 to 34 year olds. In the Bronx, the dominant age group is actually 5 to 17 year olds. In Manhattan, the most common age groups following the most dominant are 35 to 44 year olds, 45 to 54 year olds, and 55 to 64 year olds. In Brooklyn, 5 to 17 year olds, 35 to 44 year olds, and 45 to 54 year olds follow. In Queens, 5 to 17 year olds, 55 to 64 year olds, and 35 to 44 year olds follow. In the Bronx, 25 to 34 year olds, 35 to 44 year olds, and 55 to 64 year olds follow. 
+
+This could explain the trend seen above of lower density of dog ownership in many of the neighborhoods in the Bronx, Queens, and Brooklyn compared to Manhattan. Young children, 5 to 17 year olds present in the top 2 age groups of each borough, do not usually have the resources to take care of dogs requiring food, walks, vet visits, etc. and require extensive resources themselves. So, it would make sense for many of these households to opt out of dog ownership. 
+
+## Dogs Instead of Kids?
+
+From the findings by age group, we became interested in the actual household compositions predominant in each borough. Additionally, it's been a prevelant comment on recent culture that young people are opting to have dogs instead of kids. 
+
+Seeing that boroughs with more younger individuals tended to have less dog density, we became curious if this had to do with having kids in households or not because many of the predominant age groups were still adult ages. We considered the proportion of family and nonfamily households in each borough first. By considering the proportion, we could better understand the makeup of each borough rather than the count of households.
+
+```{r, message=FALSE, warning=FALSE}
+households_long <- select(census_households, c(1, 3:6))[c(2:3, 8, 10, 11, 13, 14),]
+households_long <- households_long |>
+  rename(household_type = `Label (Grouping)`)
+
+households_long$`Bronx County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", households_long$`Bronx County, New York!!Total population!!Estimate`))
+households_long <- households_long |> rename(Bronx = `Bronx County, New York!!Total population!!Estimate`)
+
+households_long$`New York County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", households_long$`New York County, New York!!Total population!!Estimate`))
+households_long <- households_long |> rename(Manhattan = `New York County, New York!!Total population!!Estimate`)
+
+households_long$`Kings County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", households_long$`Kings County, New York!!Total population!!Estimate`))
+households_long <- households_long |> rename(Brooklyn = `Kings County, New York!!Total population!!Estimate`)
+
+households_long$`Queens County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", households_long$`Queens County, New York!!Total population!!Estimate`))
+households_long <- households_long |> rename(Queens = `Queens County, New York!!Total population!!Estimate`)
+
+households_long <- households_long |>
+  pivot_longer(cols = `Bronx`:`Queens`, 
+               names_to = "Borough", 
+               values_to = "Percentage") 
+
+households_long$household_type <- str_squish(households_long$household_type)
+
+familyhouseholds <- households_long[c(1:4,9:12),]
+familyhouseholds$Borough <- as.factor(familyhouseholds$Borough)
+familyhouseholds$Borough <- factor(familyhouseholds$Borough, levels = c("Manhattan", "Brooklyn", "Bronx", "Queens"))
+
+household_plot1 <- ggplot(familyhouseholds, aes(x = Borough, y = Percentage, fill = household_type)) +
+  geom_bar(stat = "identity") +  # Use actual values (percentage) for the bar heights
+  labs(
+    title = "Family vs. Nonfamily Composition by Borough",
+    x = "Borough",
+    y = "Percentage of Total Households",
+    caption = "Figure 10",
+    fill = "Household Type"
+  ) +
+  theme_minimal() +
+  scale_fill_manual(values = c("Family households" = "#CAB2D6", 
+               "Nonfamily households" = "#6A3D9A"))
+
+household_plot1
+
+```
+Interestingly, Manhattan clearly has a greater proportion of Nonfamily households compared to the Bronx, Brooklyn, and Queens. This wide margin continues to show that Manhattan’s higher dog ownership density may be associated with having less households with children. However, Brooklyn, Bronx, and Queens have similar makeups, and the Bronx had generally less dog ownership density than both Brooklyn and Queens.
+
+Looking further into the composition of family and nonfamily households, nonfamily households were split into two categories, living alone and not living alone, and family households were split into two categories, with children and without children. 
+
+```{r, message=FALSE, warning=FALSE}
+
+withoutchildren_bronx <- households_long$Percentage[1] - households_long$Percentage[5]
+withoutchildren_manhattan <- households_long$Percentage[3] - households_long$Percentage[7]
+withoutchildren_brooklyn <- households_long$Percentage[2] - households_long$Percentage[6]
+withoutchildren_queens <- households_long$Percentage[4] - households_long$Percentage[8]
+
+# Create a new row with the calculated difference
+withoutchildren_bronx <- data.frame(household_type = "Without Children", Borough = "Bronx", Percentage = withoutchildren_bronx)
+withoutchildren_manhattan <- data.frame(household_type = "Without Children", Borough = "Manhattan", Percentage = withoutchildren_manhattan)
+withoutchildren_brooklyn <- data.frame(household_type = "Without Children", Borough = "Brooklyn", Percentage = withoutchildren_brooklyn)
+withoutchildren_queens <- data.frame(household_type = "Without Children", Borough = "Queens", Percentage = withoutchildren_queens)
+
+
+# Add the new row to the original data
+households_long <- rbind(households_long, withoutchildren_bronx)
+households_long <- rbind(households_long, withoutchildren_brooklyn)
+households_long <- rbind(households_long, withoutchildren_manhattan)
+households_long <- rbind(households_long, withoutchildren_queens)
+
+specificfamily <- households_long[c(5:8,13:32),]
+specificfamily$Borough <- as.factor(specificfamily$Borough)
+specificfamily$Borough <- factor(specificfamily$Borough, levels = c("Queens", "Bronx", "Brooklyn", "Manhattan"))
+
+specificfamily <- specificfamily|>
+  group_by(Borough, household_type) |>
+  summarize(Percentage = sum(Percentage), .groups = "drop")
+
+specificfamily$household_type <- str_squish(specificfamily$household_type)
+
+household_plot2 <- ggplot(specificfamily, aes(x = Borough, y = Percentage, fill = household_type)) +
+  geom_bar(stat = "identity") +
+  labs(
+    title = "Detailed Household Composition by Borough",
+    x = "Borough",
+    y = "Percentage of Total Households",
+    fill = "Household Type",
+    caption = "Figure 11"
+  ) +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Paired")
+household_plot2
+```
+Manhattan clearly contains the lowest percentage of households with children, followed by similar levels in Brooklyn, Queens, and the Bronx. While this may explain why more households in the Bronx, Brooklyn, and Queens opt out of dog ownership, this data also shows an interesting trend in why some households in Manhattan may opt into dog ownership. Manhattan shows a large proportion of individuals living alone. They may be opting to own dogs for companionship or safety in these situations. 
+
+## More Money, More Dogs?
+
+Because dogs require responsibility and resources to care for, we wondered if income played a role in determining dog ownership in New York City. We examined median income by borough to get an idea of general differences in household income.
+
+```{r, message=FALSE, warning=FALSE}
+income_dollars <- census_income[c(2),]
+
+income_dollars <- income_dollars|> rename(Queens = `Queens County, New York!!Total population!!Estimate`)
+income_dollars <- income_dollars|> rename(Brooklyn = `Kings County, New York!!Total population!!Estimate`)
+income_dollars <- income_dollars|> rename(Manhattan = `New York County, New York!!Total population!!Estimate`)
+income_dollars <- income_dollars|> rename(Bronx = `Bronx County, New York!!Total population!!Estimate`)
+
+
+income_dollars <- income_dollars |>
+  pivot_longer(cols = Bronx:Queens, 
+               names_to = "Borough", 
+               values_to = "Income")
+income_dollars$Income <- as.numeric(gsub(",","", income_dollars$Income))/1000
+
+ggplot(income_dollars, aes(x = Income, 
+                      y = reorder(Borough, Income))) + 
+  geom_col(stat = "identity", fill = "#A6CEE3") +
+  labs(title = "Median Income by Borough",
+       x = "Income in $1,000s",
+       y = "Borough",
+       caption = "Figure 13") +
+  theme(legend.position = "top") +
+  theme_minimal()
+```
+Manhattan has the highest income, over $100,000 a year, followed by Queens, Brooklyn, then the Bronx. Queens and Brooklyn have comprable median incomes hovering around $75,000-$90,000 while the Bronx's median income is under half of Manhattan's, just under $50,000. This income disparity could explain the lower density in the Bronx, moderate density in Brooklyn and Queens, and much higher density in Manhattan. With more disposable income, there's more money to put towards having pets and having enough space for pets in households.
+
+This leads to more questions about what factors could distinguish ownership in the Bronx from ownership in Queens and Brooklyn, boroughs that still had some high density spots. 
+
+```{r, message=FALSE, warning=FALSE}
+income_long <- select(census_income, c(1, 3:6))[c(2:3, 5,7,9,11,13),]
+income_long <- income_long |>
+  rename(income_type = `Label (Grouping)`)
+
+income_long$`Bronx County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", income_long$`Bronx County, New York!!Total population!!Estimate`))
+income_long <- income_long |> rename(Bronx = `Bronx County, New York!!Total population!!Estimate`)
+
+income_long$`New York County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", income_long$`New York County, New York!!Total population!!Estimate`))
+income_long <- income_long |> rename(Manhattan = `New York County, New York!!Total population!!Estimate`)
+
+income_long$`Kings County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", income_long$`Kings County, New York!!Total population!!Estimate`))
+income_long <- income_long |> rename(Brooklyn = `Kings County, New York!!Total population!!Estimate`)
+
+income_long$`Queens County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", income_long$`Queens County, New York!!Total population!!Estimate`))
+income_long <- income_long |> rename(Queens = `Queens County, New York!!Total population!!Estimate`)
+
+income_long <- income_long |>
+  pivot_longer(cols = `Bronx`:`Queens`, 
+               names_to = "Borough", 
+               values_to = "Percentage") 
+
+income_long$Borough <- as.factor(income_long$Borough)
+income_long$Borough <- factor(income_long$Borough, levels = c("Bronx", "Brooklyn", "Queens", "Manhattan"))
+
+income_percentage <- income_long[c(5:28),]
+
+income_plot <- ggplot(income_percentage, aes(x = Borough, y = Percentage, fill = income_type)) +
+  geom_bar(stat = "identity", position = "dodge") +  # Use actual values (percentage) for the bar heights
+  labs(
+    title = "Income Composition by Borough",
+    x = "Borough",
+    y = "Percentage of Total Income",
+    fill = "Income Type",
+    caption = "Figure 12"
+  ) +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Paired")
+income_plot
+```
+
+Looking at income composition, the Bronx had two notable income types differing significantly from Brooklyn and Queens: public assistance income and Food Stamp/SNAP benefits. While public assistance income is up to the individual to decide spending, Food Stamp/SNAP benefits have specific restrictions. In particular, individuals are not allowed to purchase pet food with these benefits. This further shows how income may explain the lower density of dogs in the Bronx despite similar household and age compositions in Brooklyn and Queens.
+
+## Small Dogs Reign Supreme
+In considering dog ownership in New York City, we also wanted to know general trends in popularity and whether geography affected these aspects of dog ownership as well. First, we asked: does geography also affect the most popular dog breeds?
+
 ```{r, warning=FALSE, message=FALSE}
 
 dog_license_breed_count_by_borough <- dog_license_data |> 
@@ -181,9 +435,9 @@ ggplot(dog_license_breed_count_by_borough, aes(x = count, y = reorder(BreedName,
 
 ```
 
-From Figure 5 above, we observed that the popularity of dog breeds across boroughs is more alike than it is different. Every borough had Yorkshire Terrier as the most popular licensed dog breed, followed by Shih Tzu. Chihuahaus appeared in the top five for all boroughs. Both these breeds are small in size, and thus, are practical dogs to raise in densely populated areas. The Bronx was the only borough to not include Labrador Retrievers in the top five, instead showing high popularity of American Pit Bull Terrier mixes. 
+We observed that the popularity of dog breeds across boroughs is more alike than it is different. Every borough had Yorkshire Terrier as the most popular licensed dog breed, followed by Shih Tzu. Chihuahuas appeared in the top five for all boroughs. Both these breeds are small in size, and thus, are practical dogs to raise in densely populated areas. The Bronx was the only borough to not include Labrador Retrievers in the top five, instead showing high popularity of American Pit Bull Terrier mixes.
 
-To look at breed trends overtime, we next identified the most popular breeds in each year. We defined "popular" as those breeds representing a greater than 2 percent proportion of all dog licenses in New York City in a given year. We scaled by proportion in order to account for level differences between the total amount of dog licenses in each year. We created the 2 percent cutoff in order to get a group of the top breeds from each year, since there are a variety of breeds in each year. Figure 6 below presents these popularity results in a heatmap.
+To look at breed trends overtime, we identified the most popular breeds in each year. We defined “popular” as breeds representing greater than 2% of all dog licenses in New York City in a given year. We scaled by proportion in order to account for level differences between the total amount of dog licenses in each year. Finally, we created the 2 percent cutoff in order to get a group of the top breeds from each year, since there are a variety of breeds in each year.
 
 ```{r fig.width=10, fig.height=12, message=FALSE, warning=FALSE}
 
@@ -214,9 +468,11 @@ popular_breeds <- ggplot(counts_breed_top, aes(x = factor(Year), y = fct_rev(reo
   theme(plot.caption = element_text(size = 8))
 popular_breeds 
 ```
-As the coloring in Figure 6 indicate, Chihuahuas, Shih Tzus, and Yorkshire Terriers are consistently the most popular through all the years. However, each demonstrates a lightening of color from left to right, which may indicate a slight decrease in their popularity over time. There are several other breeds, like Pit Bull Mixes and Labrador Retrievers, that are also pretty popular through all the years in our sample. On the other hand, there are newcomers to the top popularity ranks like goldendoodles. These new top breeds may indicate an overall shift in breed tastes among New York City dog owners.
+Chihuahuas, Shih Tzus, and Yorkshire Terriers are consistently the most popular throughout the years. However, each demonstrates a lightening of color from left to right, which indicates a slight decrease in their relative popularity over time. There are several other breeds, like Pit Bull Mixes and Labrador Retrievers, that are also pretty popular through all the years in our sample. On the other hand, there are newcomers to the top popularity ranks like Goldendoodles. These new top breeds may indicate an overall shift in breed tastes among New York City dog owners.
 
-Another topic within popularity trends is dog names. We were interested in seeing what the top dog names chosen by New Yorkers were, so we totaled and plotted the overall top male and female dog names in our data. Figure 7 plots these name counts. In both the male and female cases, there are clear winners for top name - Bella for female dogs and Max for male dogs.
+## Most Popular Dogs in New York City 
+
+Another topic within popularity trends is dog names. We were interested in seeing what the top dog names chosen by New Yorkers were, so we totaled and plotted the overall top male and female dog names in our data. 
 
 ```{r fig.width=10, fig.height=8, message=FALSE, warning=FALSE}
 
@@ -253,7 +509,12 @@ combined_plot <- names_F + names_M + plot_layout(ncol = 2)
 combined_plot
 ```
 
-A question arose for us, when looking at the most popular dog breeds, was the following: is safety a criteria that dog owners select breeds on? In other words, do these most popular dog breeds we see in the data correspond to any noticeable pattern in safety or behavior? To explore this question, we linked our dog license data to publically available data on reported dog bites in New York City. Looking at dog bite level per breed would not account for level differences in the number of dogs of a certain breed. So, we create a scaled measure of dog bite behavior with the following method. We scale the number of dog bites reported for each dog breed in a given year by the number of dog licenses in that year. While this is an imperfect substitute for overall populations of dog breeds, it should account for some of the variation in their presence and popularity. Next, we take the log of this ratio in order to make the ratios more easily comparable between breeds and between years. 
+In both the male and female cases, there are clear winners for top name - Bella for female dogs and Max for male dogs. The top 5 female dog names are: Bella, Luna, Lola, Lucy, and Daisy. For male dogs, the top 5 popular names are: Max, Charlie, Rocky, Teddy, and Buddy.
+
+## Dog Bites Do Not Deter Dog Owners 
+
+When looking at the most popular dog breeds, we wondered: is safety a criteria that dog owners select breeds on? In other words, do these most popular dog breeds we see in the data correspond to any noticeable pattern in safety or behavior? To explore this question, we linked our dog license data to publically available data on reported dog bites in New York City. Looking at dog bite level per breed would not account for level differences in the number of dogs of a certain breed. So, we create a scaled measure of dog bite behavior with the following method. We scale the number of dog bites reported for each dog breed in a given year by the number of dog licenses in that year. While this is an imperfect substitute for overall populations of dog breeds, it should account for some of the variation in their presence and popularity. Next, we take the log of this ratio in order to make the ratios more easily comparable between breeds and between years.
+
 
 ```{r fig.width=10, fig.height=8, message=FALSE, warning=FALSE}
 
@@ -315,199 +576,5 @@ ggplot(merged, aes(x = year, y = bite_pop_ratio, color = breed, group = breed)) 
        caption = "Figure 8") +
   theme_minimal()
 ```
-Figure 8 shows several interesting trends. The bite-to-popular ratio follows for all of the breeds seems to follow the same increased then decreased trend. This may be due to the construction of our measure or trends in reporting. More clear to interpret, though, are the highest ratios in each year. Both Pit Bull breeds are consistently at the top of the ratio scale, with small dogs like Chihuahuas not far behind. This may suggest that tendencies to bite may not be deterrents for dog ownership in New York City.
-
-```{r, message=FALSE, warning=FALSE}
-
-census2023 <- census2023[ c(1,2,4,6,8,10) ]
-census2023 <- census2023[-c(1:6,40:46,64:232,266:345),]
-
-census_ages <- census2023[c(2, 5:13),]
-census_households <- census2023[c(35:50),]
-census_income <- census2023[c(52:72),]
-
-total_pop_bronx <- as.numeric(gsub(",","", census_ages$`Bronx County, New York!!Total population!!Estimate`[1]))
-census_ages$`Bronx` <- as.numeric(gsub("%", "", census_ages$`Bronx County, New York!!Total population!!Estimate` )) / 100 * total_pop_bronx
-
-total_pop_kings <- as.numeric(gsub(",","", census_ages$`Kings County, New York!!Total population!!Estimate`[1]))
-census_ages$`Kings` <- as.numeric(gsub("%", "", census_ages$`Kings County, New York!!Total population!!Estimate`)) / 100 * total_pop_kings
-
-total_pop_ny <- as.numeric(gsub(",","", census_ages$`New York County, New York!!Total population!!Estimate`[1]))
-census_ages$`New York` <- as.numeric(gsub("%", "", census_ages$`New York County, New York!!Total population!!Estimate` )) / 100 * total_pop_ny
-
-total_pop_queens <- as.numeric(gsub(",","", census_ages$`Queens County, New York!!Total population!!Estimate`[1]))
-census_ages$`Queens` <- as.numeric(gsub("%", "", census_ages$`Queens County, New York!!Total population!!Estimate` )) / 100 * total_pop_queens
-
-ages_long <- select(census_ages, c(1,7:10))[c(2:10),]
-ages_long <- ages_long |>
-  rename(ages = `Label (Grouping)`)
-ages_long <- ages_long |>
-  pivot_longer(cols = `Bronx`:`Queens`, 
-               names_to = "Borough", 
-               values_to = "Population") 
-
-ggplot(ages_long, aes(x = Population, 
-                      y = fct_reorder(ages, Population))) + 
-  geom_point() +
-  facet_grid(fct_infreq(Borough) ~ ., scales = "free_y") + 
-  labs(title = "Population Distribution by Age Group and Borough",
-       x = "Population",
-       y = "Age Group",
-       caption = "Figure 9") +
-  theme_minimal()+
-  theme(legend.position = "top", axis.text.y = element_text(size=6))
-
-```
-
-```{r, message=FALSE, warning=FALSE}
-households_long <- select(census_households, c(1, 3:6))[c(2:3, 8, 10, 11, 13, 14),]
-households_long <- households_long |>
-  rename(household_type = `Label (Grouping)`)
-
-households_long$`Bronx County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", households_long$`Bronx County, New York!!Total population!!Estimate`))
-households_long <- households_long |> rename(Bronx = `Bronx County, New York!!Total population!!Estimate`)
-
-households_long$`New York County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", households_long$`New York County, New York!!Total population!!Estimate`))
-households_long <- households_long |> rename(Manhattan = `New York County, New York!!Total population!!Estimate`)
-
-households_long$`Kings County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", households_long$`Kings County, New York!!Total population!!Estimate`))
-households_long <- households_long |> rename(Brooklyn = `Kings County, New York!!Total population!!Estimate`)
-
-households_long$`Queens County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", households_long$`Queens County, New York!!Total population!!Estimate`))
-households_long <- households_long |> rename(Queens = `Queens County, New York!!Total population!!Estimate`)
-
-households_long <- households_long |>
-  pivot_longer(cols = `Bronx`:`Queens`, 
-               names_to = "Borough", 
-               values_to = "Percentage") 
-
-households_long$household_type <- str_squish(households_long$household_type)
-
-familyhouseholds <- households_long[c(1:4,9:12),]
-
-household_plot1 <- ggplot(familyhouseholds, aes(x = Borough, y = Percentage, fill = household_type)) +
-  geom_bar(stat = "identity") +  # Use actual values (percentage) for the bar heights
-  labs(
-    title = "Household Composition by Borough",
-    x = "Borough",
-    y = "Percentage of Total Households",
-    caption = "Figure 10",
-    fill = "Household Type"
-  ) +
-  theme_minimal() +
-  scale_fill_manual(values = c("Family households" = "#CAB2D6", 
-               "Nonfamily households" = "#6A3D9A"))
-household_plot1
-
-```
-
-```{r, message=FALSE, warning=FALSE}
-data <- data.frame(
-  row_id = c("row1", "row2"),
-  value = c(40, 30)
-)
-
-withoutchildren_bronx <- households_long$Percentage[1] - households_long$Percentage[5]
-withoutchildren_manhattan <- households_long$Percentage[3] - households_long$Percentage[7]
-withoutchildren_brooklyn <- households_long$Percentage[2] - households_long$Percentage[6]
-withoutchildren_queens <- households_long$Percentage[4] - households_long$Percentage[8]
-
-# Create a new row with the calculated difference
-withoutchildren_bronx <- data.frame(household_type = "withoutchildren", Borough = "Bronx", Percentage = withoutchildren_bronx)
-withoutchildren_manhattan <- data.frame(household_type = "withoutchildren", Borough = "Manhattan", Percentage = withoutchildren_manhattan)
-withoutchildren_brooklyn <- data.frame(household_type = "withoutchildren", Borough = "Brooklyn", Percentage = withoutchildren_brooklyn)
-withoutchildren_queens <- data.frame(household_type = "withoutchildren", Borough = "Queens", Percentage = withoutchildren_queens)
-
-
-# Add the new row to the original data
-households_long <- rbind(households_long, withoutchildren_bronx)
-households_long <- rbind(households_long, withoutchildren_brooklyn)
-households_long <- rbind(households_long, withoutchildren_manhattan)
-households_long <- rbind(households_long, withoutchildren_queens)
-
-specificfamily <- households_long[c(5:8,13:32),]
-
-specificfamily <- specificfamily|>
-  group_by(Borough, household_type) |>
-  summarize(Percentage = sum(Percentage), .groups = "drop")
-
-specificfamily$household_type <- str_squish(specificfamily$household_type)
-
-household_plot2 <- ggplot(specificfamily, aes(x = Borough, y = Percentage, fill = household_type)) +
-  geom_bar(stat = "identity") +
-  labs(
-    title = "Household Composition by Borough",
-    x = "Borough",
-    y = "Percentage of Total Households",
-    fill = "Household Type",
-    caption = "Figure 11"
-  ) +
-  theme_minimal() +
-  scale_fill_brewer(palette = "Paired")
-household_plot2
-```
-
-```{r, message=FALSE, warning=FALSE}
-income_long <- select(census_income, c(1, 3:6))[c(2:3, 5,7,9,11,13),]
-income_long <- income_long |>
-  rename(income_type = `Label (Grouping)`)
-
-income_long$`Bronx County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", income_long$`Bronx County, New York!!Total population!!Estimate`))
-income_long <- income_long |> rename(Bronx = `Bronx County, New York!!Total population!!Estimate`)
-
-income_long$`New York County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", income_long$`New York County, New York!!Total population!!Estimate`))
-income_long <- income_long |> rename(Manhattan = `New York County, New York!!Total population!!Estimate`)
-
-income_long$`Kings County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", income_long$`Kings County, New York!!Total population!!Estimate`))
-income_long <- income_long |> rename(Brooklyn = `Kings County, New York!!Total population!!Estimate`)
-
-income_long$`Queens County, New York!!Total population!!Estimate` <- as.numeric(gsub("%", "", income_long$`Queens County, New York!!Total population!!Estimate`))
-income_long <- income_long |> rename(Queens = `Queens County, New York!!Total population!!Estimate`)
-
-income_long <- income_long |>
-  pivot_longer(cols = `Bronx`:`Queens`, 
-               names_to = "Borough", 
-               values_to = "Percentage") 
-
-income_percentage <- income_long[c(5:28),]
-
-income_plot <- ggplot(income_percentage, aes(x = Borough, y = Percentage, fill = income_type)) +
-  geom_bar(stat = "identity", position = "dodge") +  # Use actual values (percentage) for the bar heights
-  labs(
-    title = "Income Composition by Borough",
-    x = "Borough",
-    y = "Percentage of Total Income",
-    fill = "Income Type",
-    caption = "Figure 12"
-  ) +
-  theme_minimal() +
-  scale_fill_brewer(palette = "Paired")
-income_plot
-```
-
-```{r, message=FALSE, warning=FALSE}
-income_dollars <- census_income[c(2),]
-
-income_dollars <- income_dollars|> rename(Queens = `Queens County, New York!!Total population!!Estimate`)
-income_dollars <- income_dollars|> rename(Brooklyn = `Kings County, New York!!Total population!!Estimate`)
-income_dollars <- income_dollars|> rename(Manhattan = `New York County, New York!!Total population!!Estimate`)
-income_dollars <- income_dollars|> rename(Bronx = `Bronx County, New York!!Total population!!Estimate`)
-
-
-income_dollars <- income_dollars |>
-  pivot_longer(cols = Bronx:Queens, 
-               names_to = "Borough", 
-               values_to = "Income")
-income_dollars$Income <- as.numeric(gsub(",","", income_dollars$Income))/1000
-
-ggplot(income_dollars, aes(x = Income, 
-                      y = reorder(Borough, Income))) + 
-  geom_col(stat = "identity", fill = "#A6CEE3") +
-  labs(title = "Median Income by Borough",
-       x = "Income in $1,000s",
-       y = "Borough",
-       caption = "Figure 13") +
-  theme(legend.position = "top") +
-  theme_minimal()
-```
+The bite-to-popular ratio for all of the breeds seems to follow the same increased then decreased trend. This may be due to the construction of our measure or trends in reporting. More clear to interpret, though, are the highest ratios in each year. Both Pit Bull breeds are consistently at the top of the ratio scale, with small dogs like Chihuahuas not far behind. This may suggest that tendencies to bite may not be deterrents for dog ownership in New York City.
 
